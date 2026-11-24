@@ -34,7 +34,18 @@
       box-shadow: 0 2px 6px rgba(0,0,0,0.15);
     }
     header h1 { margin: 0; font-size: 1.2rem; }
-    header small { color: #cbd5e1; display: block; font-size: 0.8rem; }
+    header small { color: #cbd5e1; display: block; font-size: 0.8rem; margin-top: 2px; }
+
+    .sync-badge {
+      display: inline-block;
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
 
     .header-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
@@ -208,8 +219,11 @@
 
 <header>
   <div>
-    <h1>Assistente de Relatório de Plantão</h1>
-    <small>Equipe D - Escala 24x72 • Dados salvos automaticamente no aparelho</small>
+    <h1>
+      Assistente de Relatório de Plantão
+      <span id="syncBadge" class="sync-badge">⏳ Conectando...</span>
+    </h1>
+    <small>Equipe D - Escala 24x72 • Sincronização automática celular e PC</small>
   </div>
   <div class="header-actions">
     <button class="btn-outline" style="color:#fff; border-color:#94a3b8;" onclick="exportAll()">Copiar Resumo</button>
@@ -273,7 +287,7 @@
     <!-- ABA 2: CONFIGURAÇÃO DAS PARCERIAS -->
     <div id="tabParc" class="hidden">
       <p style="font-size:0.84rem; color:var(--muted); margin-top:0;">
-        Atualize os nomes aqui sempre que a lista de trabalho externo mudar. Os nomes serão formatados em <strong>CAIXA ALTA</strong> automaticamente.
+        Atualize os nomes aqui sempre que a lista de trabalho externo mudar. Os nomes serão formatados em <strong>CAIXA ALTA</strong> automaticamente e sincronizados na nuvem.
       </p>
       <div class="form-group">
         <label for="parcGaragem">Parceria com a Garagem (ex: JAIR PEREIRA (Inf: 781830))</label>
@@ -306,7 +320,29 @@
 
 <div id="toast" class="toast">Copiado!</div>
 
-<script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyClGiuOeqWCGADcy28tDIBcnonPqxbc-0Y",
+  authDomain: "relatorio-plantao.firebaseapp.com",
+  databaseURL: "https://relatorio-plantao-default-rtdb.firebaseio.com",
+  projectId: "relatorio-plantao",
+  storageBucket: "relatorio-plantao.firebasestorage.app",
+  messagingSenderId: "187880795108",
+  appId: "1:187880795108:web:c00c62b94cf7fdf6cb75f1"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+
   const STORAGE_KEY_OCC = 'prbur_equipeD_occurrences_v1';
   const STORAGE_KEY_PARC = 'prbur_equipeD_parcerias_v1';
 
@@ -318,6 +354,51 @@
 
   let occurrences = JSON.parse(localStorage.getItem(STORAGE_KEY_OCC) || '[]');
   let parcerias = JSON.parse(localStorage.getItem(STORAGE_KEY_PARC) || JSON.stringify(DEFAULT_PARCERIAS));
+
+  let db = null;
+  let dbRef = null;
+  const syncBadge = document.getElementById('syncBadge');
+
+  const isConfigured = firebaseConfig.apiKey && !firebaseConfig.apiKey.includes('COLE_SUA_API_KEY');
+
+  if (isConfigured) {
+    try {
+      const app = initializeApp(firebaseConfig);
+      db = getDatabase(app);
+      dbRef = ref(db, 'plantao_equipe_d');
+
+      onValue(dbRef, (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          occurrences = Array.isArray(data.occurrences) ? data.occurrences : [];
+          if (data.parcerias) parcerias = data.parcerias;
+          localStorage.setItem(STORAGE_KEY_OCC, JSON.stringify(occurrences));
+          localStorage.setItem(STORAGE_KEY_PARC, JSON.stringify(parcerias));
+          renderList();
+        }
+        syncBadge.textContent = '🟢 Sincronizado na nuvem';
+      }, (error) => {
+        console.error(error);
+        syncBadge.textContent = '🔴 Erro de permissão no Firebase';
+      });
+    } catch (err) {
+      console.error(err);
+      syncBadge.textContent = '🔴 Erro ao conectar';
+    }
+  } else {
+    syncBadge.textContent = '🟡 Modo local (cole o firebaseConfig)';
+  }
+
+  function syncToCloud() {
+    localStorage.setItem(STORAGE_KEY_OCC, JSON.stringify(occurrences));
+    localStorage.setItem(STORAGE_KEY_PARC, JSON.stringify(parcerias));
+    if (dbRef) {
+      set(dbRef, { occurrences, parcerias }).catch((err) => {
+        console.error(err);
+        showToast('Salvo apenas localmente (verifique a internet)');
+      });
+    }
+  }
 
   function showToast(msg) {
     const t = document.getElementById('toast');
@@ -346,7 +427,7 @@
       ief: document.getElementById('parcIef').value.trim(),
       prefeitura: document.getElementById('parcPref').value.trim()
     };
-    localStorage.setItem(STORAGE_KEY_PARC, JSON.stringify(parcerias));
+    syncToCloud();
     showToast('Parcerias atualizadas!');
     switchTab('form');
   }
@@ -548,7 +629,7 @@
 
   function pushOccurrence(time, text) {
     occurrences.push({
-      id: Date.now() + Math.random(),
+      id: Date.now() + Math.floor(Math.random() * 1000),
       time,
       text,
       done: false
@@ -558,7 +639,7 @@
   }
 
   function saveAndRender() {
-    localStorage.setItem(STORAGE_KEY_OCC, JSON.stringify(occurrences));
+    syncToCloud();
     renderList();
   }
 
@@ -639,6 +720,19 @@
   function escapeHtml(str) {
     return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
+
+  // Expõe as funções para os botões HTML
+  window.switchTab = switchTab;
+  window.saveParcerias = saveParcerias;
+  window.addQuick = addQuick;
+  window.renderDynamicFields = renderDynamicFields;
+  window.addStructuredOccurrence = addStructuredOccurrence;
+  window.toggleDone = toggleDone;
+  window.deleteOcc = deleteOcc;
+  window.editOcc = editOcc;
+  window.copyText = copyText;
+  window.clearShift = clearShift;
+  window.exportAll = exportAll;
 
   renderDynamicFields();
   renderList();
