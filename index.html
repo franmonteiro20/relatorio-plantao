@@ -128,4 +128,1251 @@
     .btn-danger:hover { background: #fecaca; }
     .btn-copy { background: #0f766e; color: #fff; font-size: 0.78rem; padding: 6px 10px; }
     .btn-copy:hover { background: #115e59; }
-    .btn-copy-time { background: #334155; color: #
+    .btn-copy-time { background: #334155; color: #fff; font-size: 0.78rem; padding: 6px 10px; }
+    .btn-copy-time:hover { background: #1e293b; }
+
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.65; }
+      100% { opacity: 1; }
+    }
+
+    .voice-box {
+      background: #f5f3ff;
+      border: 1px solid #ddd6fe;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 14px;
+    }
+    .voice-box h3 { margin-top: 0; color: var(--ai); }
+    .voice-controls { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+    .ai-preview {
+      margin-top: 10px;
+      background: #fff;
+      border: 1px solid #c4b5fd;
+      border-radius: 6px;
+      padding: 10px;
+    }
+    .ai-preview-item {
+      border-bottom: 1px solid #e2e8f0;
+      padding: 6px 0;
+      font-size: 0.85rem;
+    }
+    .ai-preview-item:last-child { border-bottom: none; }
+
+    .form-group { margin-bottom: 10px; }
+    label { display: block; font-size: 0.8rem; font-weight: 600; margin-bottom: 4px; color: #334155; }
+    input, select, textarea {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.88rem;
+      background: #fff;
+    }
+    textarea { resize: vertical; min-height: 64px; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+
+    .time-bar {
+      display: flex;
+      gap: 8px;
+      align-items: flex-end;
+      background: #f8fafc;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      margin-bottom: 12px;
+    }
+
+    .occ-list { display: flex; flex-direction: column; gap: 10px; }
+    .occ-card {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      background: #fff;
+      transition: 0.2s;
+    }
+    .occ-card.done {
+      background: #f8fafc;
+      border-color: #86efac;
+      opacity: 0.72;
+    }
+    .occ-card.done .occ-text { text-decoration: line-through; color: var(--muted); }
+
+    .occ-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .occ-time {
+      background: var(--primary);
+      color: #fff;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 4px;
+      font-size: 0.84rem;
+    }
+    .char-count {
+      font-size: 0.74rem;
+      color: var(--muted);
+      margin-left: 6px;
+    }
+    .occ-text {
+      font-size: 0.9rem;
+      line-height: 1.45;
+      margin: 6px 0 10px;
+      white-space: pre-wrap;
+    }
+    .occ-actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .check-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--success-text);
+      background: var(--success-bg);
+      padding: 4px 9px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin: 0;
+    }
+    .check-label input { width: auto; margin: 0; }
+
+    .tabs { display: flex; gap: 6px; margin-bottom: 12px; }
+    .tab-btn { flex: 1; background: #e2e8f0; color: #334155; font-size: 0.82rem; }
+    .tab-btn.active { background: var(--primary); color: #fff; }
+    .hidden { display: none !important; }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #0f172a;
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 0.86rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s;
+      z-index: 999;
+    }
+    .toast.show { opacity: 1; }
+
+    .empty-state {
+      text-align: center;
+      padding: 30px 15px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      border: 2px dashed #cbd5e1;
+      border-radius: 8px;
+    }
+
+    .badge-count {
+      background: #e2e8f0;
+      color: #334155;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 0.78rem;
+      margin-left: 6px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>
+      Assistente de Relatório de Plantão
+      <span id="syncBadge" class="sync-badge">⏳ Conectando...</span>
+    </h1>
+    <small>Equipe D - Escala 24x72 • Sincronização em tempo real + Voz com IA</small>
+  </div>
+  <div class="header-actions">
+    <button class="btn-outline" style="color:#fff; border-color:#94a3b8;" onclick="exportAll()">Copiar Resumo</button>
+    <button class="btn-danger" onclick="clearShift()">Novo Plantão</button>
+  </div>
+</header>
+
+<div class="toggle-bar">
+  <label><input type="checkbox" id="optUppercase" checked /> TUDO EM CAIXA ALTA</label>
+  <label><input type="checkbox" id="optSplit250" checked /> Dividir textos longos automaticamente (máx. 250 caracteres)</label>
+</div>
+
+<div class="container">
+  <!-- COLUNA ESQUERDA -->
+  <div class="panel">
+    <div class="tabs">
+      <button class="tab-btn active" id="tabBtnForm" onclick="switchTab('form')">Ocorrências</button>
+      <button class="tab-btn" id="tabBtnWork" onclick="switchTab('work')">Parcerias / Trabalho</button>
+      <button class="tab-btn" id="tabBtnParc" onclick="switchTab('parc')">Editar Listas / IA</button>
+    </div>
+
+    <!-- ABA 1: VOZ + ROTINA RÁPIDA + FORMULÁRIO ESTRUTURADO -->
+    <div id="tabForm">
+      <!-- BLOCO DE VOZ COM IA -->
+      <div class="voice-box">
+        <h3>🎙️ Lançamento por Voz (IA)</h3>
+        <div class="voice-controls">
+          <button id="btnMic" class="btn-ai" onclick="toggleVoice()">🎙️ Falar Ocorrência</button>
+          <button id="btnProcessAI" class="btn-primary" onclick="processWithAI()">✨ Formatar com IA</button>
+        </div>
+        <textarea id="voiceTranscript" rows="2" placeholder="Toque em 'Falar Ocorrência' ou digite livremente (ex: às 10 e 15 o advogado Jader atendeu o Adilson, e às 11 e 30 chegou o almoço)..."></textarea>
+        <div id="aiStatus" style="font-size:0.78rem; color:var(--ai); margin-top:4px;"></div>
+
+        <div id="aiPreviewBox" class="ai-preview hidden">
+          <div style="font-size:0.8rem; font-weight:700; color:var(--ai); margin-bottom:6px;">Prévia gerada pela IA:</div>
+          <div id="aiPreviewList"></div>
+          <div style="display:flex; gap:8px; margin-top:8px;">
+            <button class="btn-copy" style="flex:1;" onclick="confirmAIPreview()">✅ Confirmar e Salvar</button>
+            <button class="btn-outline" onclick="cancelAIPreview()">Descartar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- BARRA DE HORÁRIO GLOBAL -->
+      <div class="time-bar" id="globalTimeBar">
+        <div style="flex:1;">
+          <label for="occTime" style="margin-bottom:3px;">Horário do Registro (botões abaixo)</label>
+          <input type="time" id="occTime" value="07:00" />
+        </div>
+        <button class="btn-outline" onclick="setNowTime()" title="Puxar hora atual">🕒 Agora</button>
+      </div>
+
+      <h3>Rotina Rápida (1 Clique)</h3>
+      <div class="quick-grid">
+        <button class="btn-quick" onclick="addQuick('cafe')">☕ Café da Manhã</button>
+        <button class="btn-quick" onclick="addQuick('almoco')">🍽️ Almoço</button>
+        <button class="btn-quick" onclick="addQuick('jantar')">🍲 Jantar</button>
+        <button class="btn-quick" onclick="addQuick('radios')">📻 Rádios (07:00)</button>
+        <button class="btn-quick" onclick="addQuick('cartas_saida')">✉️ Cartas Saída</button>
+        <button class="btn-quick" onclick="addQuick('cobal_inicio')">🛍️ Início Cobal</button>
+        <button class="btn-quick" onclick="addQuick('pastoral')">✝️ Pastoral Carc.</button>
+        <button class="btn-quick" onclick="addQuick('prestobarba')">🪒 Prestobarbas</button>
+      </div>
+
+      <h3>Nova Ocorrência Estruturada</h3>
+      <div class="form-group">
+        <label for="occType">Tipo de Ocorrência</label>
+        <select id="occType" onchange="renderDynamicFields()">
+          <option value="recebimento">Recebimento de Plantão</option>
+          <option value="passagem">Passagem de Plantão</option>
+          <option value="banho_sol">Banho de Sol</option>
+          <option value="escolta">Escolta</option>
+          <option value="transferencia">Transferência (Individual)</option>
+          <option value="transferencia_lote">Transferência em Lote (Entrada/Saída)</option>
+          <option value="admissao">Admissão (Polícia Civil)</option>
+          <option value="audiencia">Audiência / PAD (Videoconferência)</option>
+          <option value="saude">Atendimento de Saúde</option>
+          <option value="advogado">Atendimento de Advogado(a)</option>
+          <option value="oficial">Oficial de Justiça (Intimação)</option>
+          <option value="cartorio">Cartório (Assinatura)</option>
+          <option value="alvara">Desligamento (Alvará de Soltura)</option>
+          <option value="saida_temp">Saída Temporária (Liberação / Retorno)</option>
+          <option value="visita_patio">Visita no Pátio (Manhã / Tarde)</option>
+          <option value="visita_assistida">Visita Assistida (com Menor)</option>
+          <option value="visita_virtual">Visita Virtual (Videoconferência)</option>
+          <option value="cartas_entrada">Cartas de Entrada (Censura/Entrega)</option>
+          <option value="cobal_fim">Encerramento de Cobal (Total)</option>
+          <option value="livre">Texto Livre</option>
+        </select>
+      </div>
+
+      <div id="dynamicFields"></div>
+
+      <button class="btn-primary" style="width:100%; margin-top:6px; padding:11px;" onclick="addStructuredOccurrence()">
+        + Adicionar ao Relatório
+      </button>
+    </div>
+
+    <!-- ABA 2: PARCERIAS E FRENTES DE TRABALHO -->
+    <div id="tabWork" class="hidden">
+      <div class="time-bar">
+        <div style="flex:1;">
+          <label for="workTime" style="margin-bottom:3px;">Horário das Parcerias</label>
+          <input type="time" id="workTime" value="07:10" />
+        </div>
+        <button class="btn-outline" onclick="setNowTime('workTime')">🕒 Agora</button>
+      </div>
+
+      <h3>Prefeitura</h3>
+      <div class="quick-grid">
+        <button class="btn-work" onclick="addWork('pref_saida')">🚪 Saída Manhã</button>
+        <button class="btn-work" onclick="addWork('pref_almoco')">🍽️ Ret. Almoço</button>
+        <button class="btn-work" onclick="addWork('pref_tarde')">☀️ Saída Tarde</button>
+        <button class="btn-work" onclick="addWork('pref_fim')">🔙 Ret. Definitivo</button>
+      </div>
+
+      <h3>IEF</h3>
+      <div class="quick-grid">
+        <button class="btn-work" onclick="addWork('ief_saida')">🚪 Saída Manhã</button>
+        <button class="btn-work" onclick="addWork('ief_almoco')">🍽️ Ret. Almoço</button>
+        <button class="btn-work" onclick="addWork('ief_tarde')">☀️ Saída Tarde</button>
+        <button class="btn-work" onclick="addWork('ief_fim')">🔙 Ret. Definitivo</button>
+      </div>
+
+      <h3>Garagem / Lava Jato</h3>
+      <div class="quick-grid">
+        <button class="btn-work" onclick="addWork('gar_saida')">🚪 Saída Manhã</button>
+        <button class="btn-work" onclick="addWork('gar_almoco')">🍽️ Ret. Almoço</button>
+        <button class="btn-work" onclick="addWork('gar_tarde')">☀️ Saída Tarde</button>
+        <button class="btn-work" onclick="addWork('gar_fim')">🔙 Ret. Definitivo</button>
+      </div>
+
+      <h3>Obra da Unidade, Horta e Faxina</h3>
+      <div class="form-group" style="margin-top:6px;">
+        <label for="obraPP">PP da Escolta da Obra (opcional)</label>
+        <input id="obraPP" placeholder="Ex: PP Ederson" />
+      </div>
+      <div class="quick-grid">
+        <button class="btn-work" onclick="addWork('obra_saida')">🧱 Saída Obra</button>
+        <button class="btn-work" onclick="addWork('obra_fim')">🔙 Retorno Obra</button>
+        <button class="btn-work" onclick="addWork('horta_saida')">🌱 Liberação Horta</button>
+        <button class="btn-work" onclick="addWork('faxina_saida')">🧹 Liberação Faxina</button>
+      </div>
+    </div>
+
+    <!-- ABA 3: CONFIGURAÇÃO DAS LISTAS E CHAVE IA -->
+    <div id="tabParc" class="hidden">
+      <div class="voice-box">
+        <h3>🔑 Configuração da IA (Gemini)</h3>
+        <div class="form-group" style="margin-bottom:8px;">
+          <label for="geminiApiKey">Chave da API do Gemini (fica salva só neste aparelho)</label>
+          <input type="password" id="geminiApiKey" placeholder="Cole sua chave AIza..." />
+        </div>
+        <button class="btn-ai" style="width:100%;" onclick="saveApiKey()">Salvar Chave da IA</button>
+      </div>
+
+      <h3>Listas de Parcerias e Equipes</h3>
+      <p style="font-size:0.82rem; color:var(--muted); margin-top:0;">
+        Atualize os nomes aqui sempre que as equipes mudarem. Fica salvo na nuvem para celular e PC.
+      </p>
+      <div class="form-group">
+        <label for="parcPref">Prefeitura (separe por vírgula)</label>
+        <textarea id="parcPref" rows="3"></textarea>
+      </div>
+      <div class="form-group">
+        <label for="parcIef">IEF (ex: VANDUIR RAMOS (INF: 802965), GILSON PEREIRA (INF: 357861))</label>
+        <input type="text" id="parcIef" />
+      </div>
+      <div class="form-group">
+        <label for="parcGaragem">Garagem / Lava Jato (ex: JAIR PEREIRA (INF: 781830))</label>
+        <input type="text" id="parcGaragem" />
+      </div>
+      <div class="form-group">
+        <label for="parcObra">Obra da Unidade (separe por vírgula)</label>
+        <textarea id="parcObra" rows="2"></textarea>
+      </div>
+      <div class="form-group">
+        <label for="parcHorta">Horta (separe por vírgula)</label>
+        <input type="text" id="parcHorta" />
+      </div>
+      <div class="form-group">
+        <label for="parcFaxina">Faxina (separe por vírgula)</label>
+        <input type="text" id="parcFaxina" />
+      </div>
+      <button class="btn-primary" style="width:100%;" onclick="saveParcerias()">Salvar Todas as Listas</button>
+    </div>
+  </div>
+
+  <!-- COLUNA DIREITA: LISTA DE OCORRÊNCIAS -->
+  <div class="panel">
+    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #e2e8f0; padding-bottom:8px; margin-bottom:14px;">
+      <h2 style="border:none; margin:0; padding:0;">
+        Ocorrências do Plantão <span class="badge-count" id="occCount">0</span>
+      </h2>
+      <small style="color:var(--muted);" id="doneCount">0 lançadas</small>
+    </div>
+
+    <div id="occList" class="occ-list"></div>
+  </div>
+</div>
+
+<div id="toast" class="toast">Copiado!</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyClGiuOeqWCGADcy28tDIBcnonPqxbc-0Y",
+    authDomain: "relatorio-plantao.firebaseapp.com",
+    databaseURL: "https://relatorio-plantao-default-rtdb.firebaseio.com",
+    projectId: "relatorio-plantao",
+    storageBucket: "relatorio-plantao.firebasestorage.app",
+    messagingSenderId: "187880795108",
+    appId: "1:187880795108:web:c00c62b94cf7fdf6cb75f1"
+  };
+
+  const STORAGE_KEY_OCC = 'prbur_equipeD_occurrences_v2';
+  const STORAGE_KEY_PARC = 'prbur_equipeD_parcerias_v2';
+  const STORAGE_KEY_GEMINI = 'prbur_gemini_api_key';
+
+  const DEFAULT_PARCERIAS = {
+    prefeitura: 'ADAILTON SOARES, ADAO VITOR, ALEXANDRE ALVES, GABRIEL QUEIROZ, OTINIEL PEREIRA, RENAM DE SOUZA, RONEI BARBOSA, UVANDERSON GOMES, VANILDO CORREA',
+    ief: 'VANDUIR RAMOS (INF: 802965), GILSON PEREIRA DE ALMEIDA (INF: 357861)',
+    garagem: 'JAIR PEREIRA (INF: 781830)',
+    obra: 'DIONATAN ROCHA (INF: 129558), FABIO QUIRINO (INF: 336962), LEANDRO RODRIGUES (INF: 311296), MARCIEL ALVES (INF: 1150089)',
+    horta: 'MARCIEL ALVES DURAES (INF: 1150089), OZEIAS DA CRUZ MAGALHÃES (INF: 584208)',
+    faxina: 'DANIEL DE OLIVEIRA SILVA (INF: 1139900), GLAYDSTONE LOPES PRADO ELIAS DE ABREU (INF: 876937)'
+  };
+
+  let occurrences = JSON.parse(localStorage.getItem(STORAGE_KEY_OCC) || '[]');
+  let parcerias = Object.assign({}, DEFAULT_PARCERIAS, JSON.parse(localStorage.getItem(STORAGE_KEY_PARC) || '{}'));
+  let pendingAIItems = [];
+
+  let db = null;
+  let dbRef = null;
+  const syncBadge = document.getElementById('syncBadge');
+
+  try {
+    const app = initializeApp(firebaseConfig);
+    db = getDatabase(app);
+    dbRef = ref(db, 'plantao_equipe_d');
+
+    onValue(dbRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        occurrences = Array.isArray(data.occurrences) ? data.occurrences : [];
+        if (data.parcerias) parcerias = Object.assign({}, DEFAULT_PARCERIAS, data.parcerias);
+        localStorage.setItem(STORAGE_KEY_OCC, JSON.stringify(occurrences));
+        localStorage.setItem(STORAGE_KEY_PARC, JSON.stringify(parcerias));
+        renderList();
+      }
+      syncBadge.textContent = '🟢 Sincronizado na nuvem';
+    }, (error) => {
+      console.error(error);
+      syncBadge.textContent = '🔴 Erro de permissão no Firebase';
+    });
+  } catch (err) {
+    console.error(err);
+    syncBadge.textContent = '🔴 Erro ao conectar';
+  }
+
+  function syncToCloud() {
+    localStorage.setItem(STORAGE_KEY_OCC, JSON.stringify(occurrences));
+    localStorage.setItem(STORAGE_KEY_PARC, JSON.stringify(parcerias));
+    if (dbRef) {
+      set(dbRef, { occurrences, parcerias }).catch((err) => {
+        console.error(err);
+        showToast('Salvo localmente (sem conexão)');
+      });
+    }
+  }
+
+  // ==================== VOZ + IA (GEMINI) ====================
+  let recognition = null;
+  let isRecording = false;
+
+  function toggleVoice() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert('Seu navegador não suporta reconhecimento de voz. Use o Google Chrome ou digite no campo de texto.');
+      return;
+    }
+
+    const btn = document.getElementById('btnMic');
+    const status = document.getElementById('aiStatus');
+
+    if (isRecording && recognition) {
+      recognition.stop();
+      return;
+    }
+
+    recognition = new SpeechRecognition();
+    recognition.lang = 'pt-BR';
+    recognition.continuous = true;
+    recognition.interimResults = true;
+
+    const textarea = document.getElementById('voiceTranscript');
+    const baseText = textarea.value ? textarea.value + ' ' : '';
+
+    recognition.onstart = () => {
+      isRecording = true;
+      btn.classList.add('btn-recording');
+      btn.textContent = '⏹️ Parar Gravação';
+      status.textContent = 'Ouvindo... fale naturalmente e toque em Parar quando terminar.';
+    };
+
+    recognition.onresult = (event) => {
+      let transcript = '';
+      for (let i = 0; i < event.results.length; i++) {
+        transcript += event.results[i][0].transcript;
+      }
+      textarea.value = (baseText + transcript).trim();
+    };
+
+    recognition.onerror = (e) => {
+      status.textContent = 'Erro no microfone: ' + e.error;
+    };
+
+    recognition.onend = () => {
+      isRecording = false;
+      btn.classList.remove('btn-recording');
+      btn.textContent = '🎙️ Falar Ocorrência';
+      status.textContent = 'Gravação concluída. Clique em "Formatar com IA".';
+    };
+
+    recognition.start();
+  }
+
+  function saveApiKey() {
+    const key = document.getElementById('geminiApiKey').value.trim();
+    localStorage.setItem(STORAGE_KEY_GEMINI, key);
+    showToast('Chave da IA salva neste aparelho!');
+  }
+
+  async function processWithAI() {
+    const apiKey = localStorage.getItem(STORAGE_KEY_GEMINI) || '';
+    if (!apiKey) {
+      alert('Cole sua chave da API do Gemini na aba "Editar Listas / IA" primeiro.');
+      switchTab('parc');
+      return;
+    }
+
+    const rawText = document.getElementById('voiceTranscript').value.trim();
+    if (!rawText) {
+      alert('Fale ou digite alguma ocorrência primeiro.');
+      return;
+    }
+
+    const status = document.getElementById('aiStatus');
+    const btn = document.getElementById('btnProcessAI');
+    btn.disabled = true;
+    status.textContent = '⏳ Formatando com a IA...';
+
+    const now = new Date();
+    const currentHHMM = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    const useUpper = document.getElementById('optUppercase').checked;
+
+    const systemPrompt = `Você é o redator oficial do relatório de plantão do Presídio de Buritis (Equipe D).
+Converta o relato falado do policial em um array JSON de ocorrências seguindo RIGOROSAMENTE os modelos abaixo.
+
+REGRAS OBRIGATÓRIAS:
+1. Retorne APENAS um array JSON válido: [{"time": "HH:MM", "text": "TEXTO"}]. Sem crases, sem markdown, sem explicações.
+2. ${useUpper ? 'ESCREVA TODO O TEXTO EM LETRAS MAIÚSCULAS (CAIXA ALTA).' : 'Use capitalização normal, mas nomes de IPLs sempre em MAIÚSCULAS.'}
+3. Se o relato tiver mais de uma ocorrência, separe em objetos diferentes no array.
+4. Se não houver horário falado, use "${currentHHMM}".
+5. Sempre finalize a frase com ", ÀS HH:MM." (com o mesmo horário do campo time).
+6. Formate IPLs sempre como: NOME COMPLETO (INF: XXXXXX) quando o Infopen for dito.
+
+MODELOS EXATOS DA UNIDADE (USE COMO BASE):
+- Recebimento: RECEBEMOS O PLANTÃO DA EQUIPE "C", COM X IPLS NO SISTEMA E Y NA CARCERAGEM, SENDO Z DE SAÍDA TEMPORÁRIA, ÀS HH:MM.
+- Passagem: PASSAMOS O PLANTÃO PARA A EQUIPE "A", COM X IPLS NO SISTEMA E Y NA CARCERAGEM, SENDO Z DE SAÍDA TEMPORÁRIA, ÀS HH:MM.
+- Refeições: RECEBEMOS E CONFERIMOS O [CAFÉ DA MANHÃ / ALMOÇO / JANTAR] TRAZIDO PELA COZINHA, ÀS HH:MM.
+- Banho de sol: OCORREU BANHO DE SOL DAS CELAS X E Y, ÀS HH:MM.
+- Escolta: OS PPS [NOMES] ESCOLTARAM O(S) IPL(S) [NOMES] ATÉ O [DESTINO], NA VIATURA [VTR], ÀS HH:MM.
+- Admissão: A POLÍCIA CIVIL DE BURITIS APRESENTOU O IPL [NOME] (INF: [X]), QUE FOI DEVIDAMENTE ADMITIDO, APÓS ANÁLISE DOCUMENTAL E REVISTA, ÀS HH:MM.
+- Audiência/PAD: OCORREU [AUDIÊNCIA DE CUSTÓDIA / INSTRUÇÃO E JULGAMENTO / CONCILIAÇÃO / JUSTIFICAÇÃO / JULGAMENTO DE PAD] POR VIDEOCONFERÊNCIA DO IPL [NOME] (INF: [X]), ÀS HH:MM.
+- Advogado(a): [O ADVOGADO / A ADVOGADA] [NOME] ([OAB]) ATENDEU [O IPL / OS IPLS] [NOMES], ÀS HH:MM.
+- Saúde: [PROFISSIONAL] ATENDEU [O IPL / OS IPLS] [NOMES], ÀS HH:MM.
+- Alvará: [O IPL / A IPL] [NOME] (INF: [X]) FOI DEVIDAMENTE [DESLIGADO / DESLIGADA] DO SISTEMA PRISIONAL, EM RAZÃO DE ALVARÁ DE SOLTURA, ÀS HH:MM.
+- Saída Temporária: LIBERAMOS [O IPL / OS IPLS] [NOMES] DE SAÍDA TEMPORÁRIA, ÀS HH:MM. (ou RETORNARAM DE SAÍDA TEMPORÁRIA, ÀS HH:MM.)
+- Visita Pátio: FOI DADO INÍCIO AO PROCEDIMENTO DE VISITA NO PÁTIO DA PARTE DA [MANHÃ/TARDE] ÀS [HH:MM], FINALIZANDO ÀS [HH:MM] COM O TOTAL DE [X] VISITANTES.
+- Visita Assistida: OCORREU VISITA ASSISTIDA PARA O IPL [NOME] (INF: [X]), POR [VISITANTE], ACOMPANHANDO [O MENOR / A MENOR] [NOME], ÀS HH:MM.
+- Cobal: INICIAMOS O RECEBIMENTO DE SACOLINHAS DE COBAL, ÀS HH:MM. / RECEBEMOS [X] SACOLINHAS DE COBAL AO LONGO DO DIA, ENCERRANDO ÀS HH:MM.
+- Cartas: AS CARTAS DE SAÍDA FORAM CENSURADAS, COLADAS E PREPARADAS PARA SEREM DESPACHADAS AOS CORREIOS, ÀS HH:MM. / FORAM CENSURADAS E ENTREGUES AOS IPLS [X] CARTAS DE ENTRADA, ÀS HH:MM.
+
+CADASTROS CONHECIDOS (complete automaticamente OAB/CRM/CRP quando citados):
+- Advogados: JADER SOARES CHAVES JUNIOR (OAB/MG 214403), ANA PAULA (OAB/MG 172807), HIGOR LUCIANO PRADO FONSECA (OAB/DF 85423), WEMESON GONÇALVES VIEIRA (OAB/DF 64970), MONIQUE TOBARDA PIEGAS (OAB 182034).
+- Saúde: A ENFERMEIRA GÉCICA, A PSICÓLOGA IVONEZIA ALVES CALAZANCIO E SILVA (CRP04/55713), A MÉDICA LARISSA GONÇALVES DO PRADO (CRM/MG 108546).
+- Oficiais de Justiça: A OFICIAL DE JUSTIÇA LETICIA SOUSA BATISTA (3429308 DF), O OFICIAL DE JUSTIÇA EMERSON MOREIRA CAMARGOS (6895095 MG).
+- Parcerias atuais:
+  * Prefeitura: ${parcerias.prefeitura}
+  * IEF: ${parcerias.ief}
+  * Garagem: ${parcerias.garagem}
+  * Obra: ${parcerias.obra}
+  * Horta: ${parcerias.horta}
+  * Faxina: ${parcerias.faxina}`;
+
+    try {
+      const modelos = [
+        'gemini-3.5-flash-lite',
+        'gemini-3.1-flash-lite',
+        'gemini-3.6-flash',
+        'gemini-3.8-flash'
+      ];
+
+      let data = null;
+      let ultimoErro = '';
+
+      for (const modelo of modelos) {
+        status.textContent = `⏳ Tentando ${modelo}...`;
+        const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent?key=${encodeURIComponent(apiKey)}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: `${systemPrompt}\n\nRELATO DO POLICIAL:\n${rawText}` }] }],
+            generationConfig: { responseMimeType: "application/json" }
+          })
+        });
+
+        data = await resp.json();
+        if (resp.ok) {
+          ultimoErro = '';
+          break;
+        }
+        ultimoErro = data.error?.message || `Erro no modelo ${modelo}`;
+      }
+
+      if (ultimoErro) {
+        throw new Error(ultimoErro);
+      }
+
+      const content = data.candidates?.[0]?.content?.parts?.[0]?.text || '[]';
+      const parsed = JSON.parse(content);
+
+      if (!Array.isArray(parsed) || parsed.length === 0) {
+        throw new Error('A IA não identificou nenhuma ocorrência.');
+      }
+
+      pendingAIItems = parsed.map(item => ({
+        time: item.time || currentHHMM,
+        text: useUpper ? (item.text || '').toUpperCase() : (item.text || '')
+      }));
+
+      const previewList = document.getElementById('aiPreviewList');
+      previewList.innerHTML = pendingAIItems.map(item => `
+        <div class="ai-preview-item">
+          <strong>${escapeHtml(item.time)}</strong> — ${escapeHtml(item.text)}
+        </div>
+      `).join('');
+
+      document.getElementById('aiPreviewBox').classList.remove('hidden');
+      status.textContent = `${pendingAIItems.length} ocorrência(s) pronta(s). Confira abaixo e clique em Confirmar.`;
+    } catch (err) {
+      console.error(err);
+      status.textContent = '❌ Erro: ' + err.message;
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  function confirmAIPreview() {
+    pendingAIItems.forEach(item => {
+      pushOccurrence(item.time || '07:00', item.text || '');
+    });
+    pendingAIItems = [];
+    document.getElementById('voiceTranscript').value = '';
+    document.getElementById('aiPreviewBox').classList.add('hidden');
+    document.getElementById('aiStatus').textContent = '';
+  }
+
+  function cancelAIPreview() {
+    pendingAIItems = [];
+    document.getElementById('aiPreviewBox').classList.add('hidden');
+    document.getElementById('aiStatus').textContent = 'Prévia descartada. Você pode ajustar o texto acima e tentar novamente.';
+  }
+
+  // ==================== FUNÇÕES GERAIS ====================
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2200);
+  }
+
+  function setNowTime(targetId = 'occTime') {
+    const now = new Date();
+    const hh = String(now.getHours()).padStart(2, '0');
+    const mm = String(now.getMinutes()).padStart(2, '0');
+    document.getElementById(targetId).value = `${hh}:${mm}`;
+  }
+
+  function switchTab(tab) {
+    document.getElementById('tabForm').classList.toggle('hidden', tab !== 'form');
+    document.getElementById('tabWork').classList.toggle('hidden', tab !== 'work');
+    document.getElementById('tabParc').classList.toggle('hidden', tab !== 'parc');
+
+    document.getElementById('tabBtnForm').classList.toggle('active', tab === 'form');
+    document.getElementById('tabBtnWork').classList.toggle('active', tab === 'work');
+    document.getElementById('tabBtnParc').classList.toggle('active', tab === 'parc');
+
+    if (tab === 'parc') loadParceriasInputs();
+  }
+
+  function loadParceriasInputs() {
+    document.getElementById('geminiApiKey').value = localStorage.getItem(STORAGE_KEY_GEMINI) || '';
+    document.getElementById('parcPref').value = parcerias.prefeitura || '';
+    document.getElementById('parcIef').value = parcerias.ief || '';
+    document.getElementById('parcGaragem').value = parcerias.garagem || '';
+    document.getElementById('parcObra').value = parcerias.obra || '';
+    document.getElementById('parcHorta').value = parcerias.horta || '';
+    document.getElementById('parcFaxina').value = parcerias.faxina || '';
+  }
+
+  function saveParcerias() {
+    parcerias = {
+      prefeitura: document.getElementById('parcPref').value.trim(),
+      ief: document.getElementById('parcIef').value.trim(),
+      garagem: document.getElementById('parcGaragem').value.trim(),
+      obra: document.getElementById('parcObra').value.trim(),
+      horta: document.getElementById('parcHorta').value.trim(),
+      faxina: document.getElementById('parcFaxina').value.trim()
+    };
+    syncToCloud();
+    showToast('Listas atualizadas na nuvem!');
+    switchTab('work');
+  }
+
+  function formatNamesList(raw) {
+    const parts = (raw || '').split(',').map(s => s.trim().toUpperCase()).filter(Boolean);
+    if (parts.length === 0) return '';
+    if (parts.length === 1) return parts[0];
+    const last = parts.pop();
+    return `${parts.join(', ')} e ${last}`;
+  }
+
+  function isPlural(raw) {
+    return (raw || '').split(',').map(s => s.trim()).filter(Boolean).length > 1;
+  }
+
+  function formatIPL(name, inf) {
+    const n = (name || '').trim().toUpperCase();
+    const i = (inf || '').trim();
+    return i ? `${n} (Inf: ${i})` : n;
+  }
+
+  function splitTextByLimit(text, maxLen = 250) {
+    if (!document.getElementById('optSplit250').checked || text.length <= maxLen) {
+      return [text];
+    }
+    const chunks = [];
+    let remaining = text.trim();
+    while (remaining.length > maxLen) {
+      let cut = remaining.lastIndexOf(', ', maxLen);
+      if (cut < maxLen * 0.5) cut = remaining.lastIndexOf(' ', maxLen);
+      if (cut <= 0) cut = maxLen;
+      chunks.push(remaining.slice(0, cut).trim());
+      remaining = remaining.slice(cut).replace(/^,\s*/, '').trim();
+    }
+    if (remaining) chunks.push(remaining);
+    return chunks;
+  }
+
+  function pushOccurrence(time, rawText) {
+    const finalText = document.getElementById('optUppercase').checked
+      ? rawText.toUpperCase()
+      : rawText;
+
+    const parts = splitTextByLimit(finalText, 250);
+    parts.forEach((part, idx) => {
+      occurrences.push({
+        id: Date.now() + Math.floor(Math.random() * 10000) + idx,
+        time,
+        text: part,
+        done: false
+      });
+    });
+
+    saveAndRender();
+    showToast(parts.length > 1 ? `Dividido em ${parts.length} partes (≤250 car.)!` : 'Ocorrência adicionada!');
+  }
+
+  function addQuick(type) {
+    const time = document.getElementById('occTime').value || '07:00';
+    let text = '';
+
+    if (type === 'cafe') {
+      text = `Recebemos e conferimos o café da manhã trazido pela cozinha, às ${time}.`;
+    } else if (type === 'almoco') {
+      text = `Recebemos e conferimos o almoço trazido pela cozinha, às ${time}.`;
+    } else if (type === 'jantar') {
+      text = `Recebemos e conferimos o jantar trazido pela cozinha, às ${time}.`;
+    } else if (type === 'radios') {
+      text = `Os rádios transceptores Mod.LAHO7JDC9VA1AN Marca Mototrbo R136174 MHZ5W - Patrimônio 130655490 e 130655813 foram passados em perfeitas condições para a equipe A, às ${time}.`;
+    } else if (type === 'cartas_saida') {
+      text = `As cartas de saída foram censuradas, coladas e preparadas para serem despachadas aos Correios, às ${time}.`;
+    } else if (type === 'cobal_inicio') {
+      text = `Iniciamos o recebimento de sacolinhas de cobal, às ${time}.`;
+    } else if (type === 'pastoral') {
+      text = `A Pastoral Carcerária realizou visita religiosa, às ${time}.`;
+    } else if (type === 'prestobarba') {
+      text = `Foi realizada a censura e conferência dos prestobarbas repassados aos IPLs, às ${time}.`;
+    }
+
+    pushOccurrence(time, text);
+  }
+
+  function addWork(action) {
+    const time = document.getElementById('workTime').value || '07:10';
+    let text = '';
+
+    if (action === 'pref_saida') {
+      const p = isPlural(parcerias.prefeitura);
+      text = `${p ? 'Os IPLs' : 'O IPL'} da parceria com a prefeitura, ${formatNamesList(parcerias.prefeitura)}, ${p ? 'saíram' : 'saiu'} para trabalho externo, às ${time}.`;
+    } else if (action === 'pref_almoco') {
+      text = `Os IPLs da parceria com a prefeitura retornaram para almoço, às ${time}.`;
+    } else if (action === 'pref_tarde') {
+      text = `Os IPLs da parceria com a prefeitura saíram novamente para trabalho externo, às ${time}.`;
+    } else if (action === 'pref_fim') {
+      text = `Os IPLs da parceria com a prefeitura retornaram em definitivo, às ${time}.`;
+    } else if (action === 'ief_saida') {
+      const p = isPlural(parcerias.ief);
+      text = `${p ? 'Os IPLs' : 'O IPL'} da parceria com o IEF, ${formatNamesList(parcerias.ief)}, ${p ? 'saíram' : 'saiu'} para trabalho externo, às ${time}.`;
+    } else if (action === 'ief_almoco') {
+      const p = isPlural(parcerias.ief);
+      text = `${p ? 'Os IPLs' : 'O IPL'} da parceria com o IEF ${p ? 'retornaram' : 'retornou'} para almoço, às ${time}.`;
+    } else if (action === 'ief_tarde') {
+      const p = isPlural(parcerias.ief);
+      text = `${p ? 'Os IPLs' : 'O IPL'} da parceria com o IEF ${p ? 'saíram' : 'saiu'} novamente, às ${time}.`;
+    } else if (action === 'ief_fim') {
+      const p = isPlural(parcerias.ief);
+      text = `${p ? 'Os IPLs' : 'O IPL'} da parceria com o IEF ${p ? 'retornaram' : 'retornou'} em definitivo, às ${time}.`;
+    } else if (action === 'gar_saida') {
+      const p = isPlural(parcerias.garagem);
+      text = `${p ? 'Os IPLs' : 'O IPL'} da parceria com a garagem, ${formatNamesList(parcerias.garagem)}, ${p ? 'saíram' : 'saiu'} para trabalho externo, às ${time}.`;
+    } else if (action === 'gar_almoco') {
+      const p = isPlural(parcerias.garagem);
+      text = `${p ? 'Os IPLs' : 'O IPL'} da parceria com a garagem ${p ? 'retornaram' : 'retornou'} para almoço, às ${time}.`;
+    } else if (action === 'gar_tarde') {
+      const p = isPlural(parcerias.garagem);
+      text = `${p ? 'Os IPLs' : 'O IPL'} da parceria com a garagem ${p ? 'saíram' : 'saiu'} novamente, às ${time}.`;
+    } else if (action === 'gar_fim') {
+      const p = isPlural(parcerias.garagem);
+      text = `${p ? 'Os IPLs' : 'O IPL'} da parceria com a garagem ${p ? 'retornaram' : 'retornou'} em definitivo, às ${time}.`;
+    } else if (action === 'obra_saida') {
+      const pp = document.getElementById('obraPP').value.trim();
+      const escoltaTxt = pp ? `, escoltados pelo ${pp}` : '';
+      text = `Os IPLs ${formatNamesList(parcerias.obra)} saíram para trabalhar na obra da unidade${escoltaTxt}, às ${time}.`;
+    } else if (action === 'obra_fim') {
+      text = `Os IPLs que estão trabalhando na obra da unidade retornaram em definitivo, às ${time}.`;
+    } else if (action === 'horta_saida') {
+      text = `Liberamos os IPLs para o trabalho externo (horta): ${formatNamesList(parcerias.horta)}, às ${time}.`;
+    } else if (action === 'faxina_saida') {
+      text = `Retiramos os IPLs para o trabalho interno (faxina) conforme ordem de serviço: ${formatNamesList(parcerias.faxina)}, às ${time}.`;
+    }
+
+    pushOccurrence(time, text);
+  }
+
+  function renderDynamicFields() {
+    const type = document.getElementById('occType').value;
+    const container = document.getElementById('dynamicFields');
+    let html = '';
+
+    if (type === 'recebimento') {
+      html = `
+        <div class="row-3">
+          <div class="form-group"><label>Equipe Ant.</label><input id="fEq" value="C" /></div>
+          <div class="form-group"><label>Sistema</label><input id="fSist" type="number" placeholder="220" /></div>
+          <div class="form-group"><label>Carceragem</label><input id="fUnid" type="number" placeholder="219" /></div>
+        </div>
+        <div class="form-group"><label>Observação (opcional)</label><input id="fObs" placeholder="Ex: sendo 01 de saída temporária, sem alteração" /></div>`;
+    } else if (type === 'passagem') {
+      html = `
+        <div class="row-3">
+          <div class="form-group"><label>Próx. Equipe</label><input id="fEq" value="A" /></div>
+          <div class="form-group"><label>Sistema</label><input id="fSist" type="number" placeholder="220" /></div>
+          <div class="form-group"><label>Carceragem</label><input id="fUnid" type="number" placeholder="219" /></div>
+        </div>
+        <div class="form-group"><label>Observação (opcional)</label><input id="fObs" placeholder="Ex: sendo 01 de saída temporária, sem alteração" /></div>`;
+    } else if (type === 'banho_sol') {
+      html = `<div class="form-group"><label>Celas</label><input id="fCelas" placeholder="Ex: 07 e 08" /></div>`;
+    } else if (type === 'escolta') {
+      html = `
+        <div class="row">
+          <div class="form-group"><label>Destino</label><input id="fDest" placeholder="Ex: PSF Israel Pinheiro / CAPS" /></div>
+          <div class="form-group"><label>Viatura</label><input id="fVtr" placeholder="Ex: Blazer / PUE 7351" /></div>
+        </div>
+        <div class="form-group"><label>PPs da Escolta</label><input id="fPps" placeholder="Ex: Cordeiro, Joaquim e Adriano" /></div>
+        <div class="form-group"><label>IPLs (Nome e Infopen, separados por vírgula)</label><textarea id="fIpls"></textarea></div>`;
+    } else if (type === 'transferencia') {
+      html = `
+        <div class="row">
+          <div class="form-group"><label>Nome do IPL</label><input id="fNome" /></div>
+          <div class="form-group"><label>Infopen</label><input id="fInf" /></div>
+        </div>
+        <div class="row">
+          <div class="form-group"><label>Destino</label><input id="fDest" placeholder="Ex: PAOJ" /></div>
+          <div class="form-group"><label>Viatura</label><input id="fVtr" placeholder="Ex: L-200" /></div>
+        </div>
+        <div class="form-group"><label>PPs Responsáveis</label><input id="fPps" placeholder="Ex: Aldemir, Camara e Silvio" /></div>`;
+    } else if (type === 'transferencia_lote') {
+      html = `
+        <div class="row">
+          <div class="form-group">
+            <label>Movimento</label>
+            <select id="fMov">
+              <option value="entrada">Recebimento de Transferência</option>
+              <option value="saida">Saída por Transferência</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Guarnição / Escolta</label><input id="fGuarn" placeholder="Ex: Presídio de João Pinheiro" /></div>
+        </div>
+        <div class="form-group"><label>Unidade de Origem ou Destino</label><input id="fUnidTransf" placeholder="Ex: Presídio José Martinho Drumond / PAOJ" /></div>
+        <div class="form-group"><label>Lista de IPLs (separe por vírgula)</label><textarea id="fIpls" rows="3"></textarea></div>`;
+    } else if (type === 'admissao') {
+      html = `
+        <div class="form-group"><label>Origem / Órgão</label><input id="fOrig" value="Polícia Civil de Buritis" /></div>
+        <div class="row">
+          <div class="form-group"><label>Nome do IPL</label><input id="fNome" /></div>
+          <div class="form-group"><label>Infopen</label><input id="fInf" /></div>
+        </div>`;
+    } else if (type === 'audiencia') {
+      html = `
+        <div class="form-group">
+          <label>Tipo</label>
+          <select id="fTipoAud">
+            <option value="audiência de instrução e julgamento">Instrução e Julgamento</option>
+            <option value="audiência de custódia">Custódia</option>
+            <option value="audiência de conciliação">Conciliação</option>
+            <option value="audiência de justificação">Justificação</option>
+            <option value="julgamento de PAD">Julgamento de PAD</option>
+          </select>
+        </div>
+        <div class="row">
+          <div class="form-group"><label>Nome do IPL</label><input id="fNome" /></div>
+          <div class="form-group"><label>Infopen</label><input id="fInf" /></div>
+        </div>`;
+    } else if (type === 'saude') {
+      html = `
+        <div class="form-group">
+          <label>Profissional</label>
+          <select id="fProfSel" onchange="document.getElementById('fProfCustom').classList.toggle('hidden', this.value !== 'outro')">
+            <option value="A enfermeira Gécica">Enfermeira Gécica</option>
+            <option value="A psicóloga Ivonezia Alves Calazancio e Silva (CRP04/55713)">Psicóloga Ivonezia (CRP04/55713)</option>
+            <option value="A médica Larissa Gonçalves do Prado (CRM/MG 108546)">Médica Larissa (CRM/MG 108546)</option>
+            <option value="outro">Outro profissional...</option>
+          </select>
+        </div>
+        <div class="form-group hidden" id="fProfCustom"><label>Nome e Registro</label><input id="fProfOutro" placeholder="Ex: O dentista..." /></div>
+        <div class="form-group"><label>IPLs Atendidos (deixe vazio para "os IPLs da unidade")</label><textarea id="fIpls" placeholder="Nomes e Infopen separados por vírgula"></textarea></div>`;
+    } else if (type === 'advogado') {
+      html = `
+        <div class="form-group">
+          <label>Advogado(a) Frequente</label>
+          <select id="fAdvSel" onchange="fillAdvPreset()">
+            <option value="">-- Digitar manualmente --</option>
+            <option value="O advogado|JADER SOARES CHAVES JUNIOR|OAB/MG 214403">Jader Soares Chaves Junior (OAB/MG 214403)</option>
+            <option value="A advogada|ANA PAULA|OAB/MG 172807">Ana Paula (OAB/MG 172807)</option>
+            <option value="O advogado|HIGOR LUCIANO PRADO FONSECA|OAB/DF 85423">Higor Luciano Prado Fonseca (OAB/DF 85423)</option>
+            <option value="O advogado|WEMESON GONÇALVES VIEIRA|OAB/DF 64970">Wemeson Gonçalves Vieira (OAB/DF 64970)</option>
+            <option value="A advogada|MONIQUE TOBARDA PIEGAS|OAB 182034">Monique Tobarda Piegas (OAB 182034)</option>
+          </select>
+        </div>
+        <div class="row-3">
+          <div class="form-group"><label>Gênero</label><select id="fAdvGen"><option value="O advogado">O advogado</option><option value="A advogada">A advogada</option></select></div>
+          <div class="form-group"><label>Nome</label><input id="fAdv" /></div>
+          <div class="form-group"><label>OAB</label><input id="fOab" /></div>
+        </div>
+        <div class="form-group"><label>IPLs Atendidos (separe por vírgula)</label><textarea id="fIpls"></textarea></div>`;
+    } else if (type === 'oficial') {
+      html = `
+        <div class="form-group">
+          <label>Oficial de Justiça</label>
+          <select id="fOfSel" onchange="document.getElementById('fOfOutroBox').classList.toggle('hidden', this.value !== 'outro')">
+            <option value="A oficial de justiça Leticia Sousa Batista (3429308 DF)">Leticia Sousa Batista (3429308 DF)</option>
+            <option value="O oficial de justiça Emerson Moreira Camargos (6895095 MG)">Emerson Moreira Camargos (6895095 MG)</option>
+            <option value="outro">Outro(a)...</option>
+          </select>
+        </div>
+        <div class="form-group hidden" id="fOfOutroBox"><label>Nome e Matrícula</label><input id="fOfOutro" /></div>`;
+    } else if (type === 'cartorio') {
+      html = `
+        <div class="form-group"><label>Cartório e Funcionário(a)</label><input id="fCart" value="A funcionária do Cartório 2º Ofício de Notas, Lúcia de Queiroz Borges (CPF: 054.449.416-43)" /></div>
+        <div class="form-group"><label>IPL (Nome e Infopen)</label><input id="fNome" placeholder="Ex: SENAVAL RAMOS" /></div>`;
+    } else if (type === 'alvara') {
+      html = `
+        <div class="row-3">
+          <div class="form-group"><label>Gênero</label><select id="fGen"><option value="O IPL">O IPL</option><option value="A IPL">A IPL</option></select></div>
+          <div class="form-group"><label>Nome</label><input id="fNome" /></div>
+          <div class="form-group"><label>Infopen</label><input id="fInf" /></div>
+        </div>`;
+    } else if (type === 'saida_temp') {
+      html = `
+        <div class="form-group">
+          <label>Tipo</label>
+          <select id="fStTipo">
+            <option value="lib">Liberação de Saída Temporária</option>
+            <option value="ret">Retorno de Saída Temporária</option>
+          </select>
+        </div>
+        <div class="form-group"><label>IPL(s) (Nome e Infopen, separados por vírgula)</label><textarea id="fIpls"></textarea></div>`;
+    } else if (type === 'visita_patio') {
+      html = `
+        <div class="row-3">
+          <div class="form-group">
+            <label>Turno</label>
+            <select id="fTurno" onchange="if(this.value==='manhã'){document.getElementById('fIni').value='08:00';document.getElementById('fFim').value='11:00';}else{document.getElementById('fIni').value='13:00';document.getElementById('fFim').value='16:00';}">
+              <option value="manhã">Parte da Manhã</option>
+              <option value="tarde">Parte da Tarde</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Início</label><input id="fIni" value="08:00" /></div>
+          <div class="form-group"><label>Fim</label><input id="fFim" value="11:00" /></div>
+        </div>
+        <div class="form-group"><label>Total de Visitantes</label><input id="fQtd" type="number" placeholder="Ex: 22" /></div>`;
+    } else if (type === 'visita_assistida') {
+      html = `
+        <div class="row">
+          <div class="form-group"><label>Nome do IPL</label><input id="fNome" /></div>
+          <div class="form-group"><label>Infopen</label><input id="fInf" /></div>
+        </div>
+        <div class="form-group"><label>Visitante Responsável</label><input id="fVis" /></div>
+        <div class="row">
+          <div class="form-group"><label>Menor</label><select id="fMenGen"><option value="o menor">o menor</option><option value="a menor">a menor</option></select></div>
+          <div class="form-group"><label>Nome do(a) Menor</label><input id="fMenNome" /></div>
+        </div>`;
+    } else if (type === 'visita_virtual') {
+      html = `<div class="form-group"><label>IPLs e Horários (ex: 113120 FABIO LUIZ - 15:00, 612336 LUCIANO LOPES - 15:30)</label><textarea id="fIpls"></textarea></div>`;
+    } else if (type === 'cartas_entrada') {
+      html = `<div class="form-group"><label>Quantidade de Cartas de Entrada</label><input id="fQtd" type="number" placeholder="Ex: 17" /></div>`;
+    } else if (type === 'cobal_fim') {
+      html = `<div class="form-group"><label>Total de Sacolinhas Recebidas</label><input id="fQtd" type="number" placeholder="Ex: 35" /></div>`;
+    } else if (type === 'livre') {
+      html = `<div class="form-group"><label>Descrição da Ocorrência</label><textarea id="fLivre"></textarea></div>`;
+    }
+
+    container.innerHTML = html;
+  }
+
+  function fillAdvPreset() {
+    const val = document.getElementById('fAdvSel').value;
+    if (!val) return;
+    const [gen, nome, oab] = val.split('|');
+    document.getElementById('fAdvGen').value = gen;
+    document.getElementById('fAdv').value = nome;
+    document.getElementById('fOab').value = oab;
+  }
+
+  function addStructuredOccurrence() {
+    const type = document.getElementById('occType').value;
+    const time = document.getElementById('occTime').value || '07:00';
+    let text = '';
+
+    if (type === 'recebimento') {
+      const eq = (document.getElementById('fEq').value || 'C').toUpperCase();
+      const sist = document.getElementById('fSist').value || '0';
+      const unid = document.getElementById('fUnid').value || '0';
+      const obs = document.getElementById('fObs').value.trim();
+      text = `Recebemos o plantão da equipe "${eq}", com ${sist} IPLs no sistema e ${unid} na carceragem${obs ? `, ${obs}` : ''}, às ${time}.`;
+    } else if (type === 'passagem') {
+      const eq = (document.getElementById('fEq').value || 'A').toUpperCase();
+      const sist = document.getElementById('fSist').value || '0';
+      const unid = document.getElementById('fUnid').value || '0';
+      const obs = document.getElementById('fObs').value.trim();
+      text = `Passamos o plantão para a equipe "${eq}", com ${sist} IPLs no sistema e ${unid} na carceragem${obs ? `, ${obs}` : ''}, às ${time}.`;
+    } else if (type === 'banho_sol') {
+      const celas = document.getElementById('fCelas').value.trim();
+      if (!celas) return alert('Informe as celas.');
+      text = `Ocorreu banho de sol das celas ${celas}, às ${time}.`;
+    } else if (type === 'escolta') {
+      const dest = document.getElementById('fDest').value.trim();
+      const vtr = document.getElementById('fVtr').value.trim();
+      const pps = document.getElementById('fPps').value.trim();
+      const ipls = formatNamesList(document.getElementById('fIpls').value);
+      text = `Ocorreu escolta até o ${dest}, na viatura ${vtr}, pelos PPs ${pps}, dos IPLs ${ipls}, às ${time}.`;
+    } else if (type === 'transferencia') {
+      const ipl = formatIPL(document.getElementById('fNome').value, document.getElementById('fInf').value);
+      const dest = document.getElementById('fDest').value.trim();
+      const pps = document.getElementById('fPps').value.trim();
+      const vtr = document.getElementById('fVtr').value.trim();
+      text = `O IPL ${ipl} foi transferido para a ${dest}, pelos PPs ${pps}, na viatura ${vtr}, às ${time}.`;
+    } else if (type === 'transferencia_lote') {
+      const mov = document.getElementById('fMov').value;
+      const guarn = document.getElementById('fGuarn').value.trim();
+      const unidT = document.getElementById('fUnidTransf').value.trim();
+      const ipls = formatNamesList(document.getElementById('fIpls').value);
+      if (mov === 'entrada') {
+        text = `Recebemos uma guarnição do ${guarn} com IPLs em transferência do ${unidT} para esta unidade, sendo eles: ${ipls}, às ${time}.`;
+      } else {
+        text = `Uma escolta do ${guarn} realizou a transferência de IPLs desta unidade para ${unidT}, sendo eles: ${ipls}, às ${time}.`;
+      }
+    } else if (type === 'admissao') {
+      const orig = document.getElementById('fOrig').value.trim();
+      const ipl = formatIPL(document.getElementById('fNome').value, document.getElementById('fInf').value);
+      text = `A ${orig} apresentou o IPL ${ipl}, que foi devidamente admitido, após análise documental e revista, às ${time}.`;
+    } else if (type === 'audiencia') {
+      const tipoAud = document.getElementById('fTipoAud').value;
+      const ipl = formatIPL(document.getElementById('fNome').value, document.getElementById('fInf').value);
+      text = `Ocorreu ${tipoAud} por videoconferência do IPL ${ipl}, às ${time}.`;
+    } else if (type === 'saude') {
+      const sel = document.getElementById('fProfSel').value;
+      const prof = sel === 'outro' ? document.getElementById('fProfOutro').value.trim() : sel;
+      const rawIpls = document.getElementById('fIpls').value.trim();
+      text = rawIpls
+        ? `${prof} atendeu os IPLs ${formatNamesList(rawIpls)}, às ${time}.`
+        : `${prof} atendeu os IPLs da unidade, às ${time}.`;
+    } else if (type === 'advogado') {
+      const gen = document.getElementById('fAdvGen').value;
+      const adv = document.getElementById('fAdv').value.trim().toUpperCase();
+      const oab = document.getElementById('fOab').value.trim().toUpperCase();
+      const rawIpls = document.getElementById('fIpls').value;
+      const p = isPlural(rawIpls);
+      text = `${gen} ${adv} (${oab}) atendeu ${p ? 'os IPLs' : 'o IPL'} ${formatNamesList(rawIpls)}, às ${time}.`;
+    } else if (type === 'oficial') {
+      const sel = document.getElementById('fOfSel').value;
+      const of = sel === 'outro' ? document.getElementById('fOfOutro').value.trim() : sel;
+      text = `${of} adentrou na unidade para intimação de IPLs, às ${time}.`;
+    } else if (type === 'cartorio') {
+      const cart = document.getElementById('fCart').value.trim();
+      const nome = document.getElementById('fNome').value.trim().toUpperCase();
+      text = `${cart} colheu assinatura do IPL ${nome}, às ${time}.`;
+    } else if (type === 'alvara') {
+      const gen = document.getElementById('fGen').value;
+      const ipl = formatIPL(document.getElementById('fNome').value, document.getElementById('fInf').value);
+      const art = gen === 'A IPL' ? 'desligada' : 'desligado';
+      text = `${gen} ${ipl} foi devidamente ${art} do sistema prisional, em razão de alvará de soltura, às ${time}.`;
+    } else if (type === 'saida_temp') {
+      const st = document.getElementById('fStTipo').value;
+      const rawIpls = document.getElementById('fIpls').value;
+      const p = isPlural(rawIpls);
+      if (st === 'lib') {
+        text = `Liberamos ${p ? 'os IPLs' : 'o IPL'} ${formatNamesList(rawIpls)} de saída temporária, às ${time}.`;
+      } else {
+        text = `${p ? 'Os IPLs' : 'O IPL'} ${formatNamesList(rawIpls)} ${p ? 'retornaram' : 'retornou'} de saída temporária, às ${time}.`;
+      }
+    } else if (type === 'visita_patio') {
+      const turno = document.getElementById('fTurno').value;
+      const ini = document.getElementById('fIni').value.trim();
+      const fim = document.getElementById('fFim').value.trim();
+      const qtd = document.getElementById('fQtd').value || '0';
+      text = `Foi dado início ao procedimento de visita no pátio da parte da ${turno} às ${ini}, finalizando às ${fim} com o total de ${qtd} visitantes.`;
+    } else if (type === 'visita_assistida') {
+      const ipl = formatIPL(document.getElementById('fNome').value, document.getElementById('fInf').value);
+      const vis = document.getElementById('fVis').value.trim().toUpperCase();
+      const menGen = document.getElementById('fMenGen').value;
+      const menNome = document.getElementById('fMenNome').value.trim().toUpperCase();
+      text = `Ocorreu visita assistida para o IPL ${ipl}, por ${vis}, acompanhando ${menGen} ${menNome}, às ${time}.`;
+    } else if (type === 'visita_virtual') {
+      const ipls = document.getElementById('fIpls').value.trim().toUpperCase();
+      text = `Foi realizada visita virtual por videoconferência para os seguintes IPLs: ${ipls}, às ${time}.`;
+    } else if (type === 'cartas_entrada') {
+      const qtd = document.getElementById('fQtd').value || '0';
+      text = `Foram censuradas e entregues aos IPLs ${qtd} cartas de entrada, às ${time}.`;
+    } else if (type === 'cobal_fim') {
+      const qtd = document.getElementById('fQtd').value || '0';
+      text = `Recebemos ${qtd} sacolinhas de cobal ao longo do dia, encerrando às ${time}.`;
+    } else if (type === 'livre') {
+      const livre = document.getElementById('fLivre').value.trim();
+      if (!livre) return alert('Digite a descrição.');
+      text = livre.includes(time) ? livre : `${livre.replace(/\.$/, '')}, às ${time}.`;
+    }
+
+    pushOccurrence(time, text);
+    renderDynamicFields();
+  }
+
+  function saveAndRender() {
+    syncToCloud();
+    renderList();
+  }
+
+  function toggleDone(id) {
+    const item = occurrences.find(o => o.id === id);
+    if (item) {
+      item.done = !item.done;
+      saveAndRender();
+    }
+  }
+
+  function deleteOcc(id) {
+    if (!confirm('Excluir esta ocorrência?')) return;
+    occurrences = occurrences.filter(o => o.id !== id);
+    saveAndRender();
+  }
+
+  function editOcc(id) {
+    const item = occurrences.find(o => o.id === id);
+    if (!item) return;
+    const newTime = prompt('Editar horário (HH:MM):', item.time);
+    if (newTime === null) return;
+    const newText = prompt('Editar descrição:', item.text);
+    if (newText === null) return;
+    item.time = newTime.trim() || item.time;
+    item.text = newText.trim() || item.text;
+    saveAndRender();
+  }
+
+  function copyText(str, label) {
+    navigator.clipboard.writeText(str).then(() => showToast(`${label} copiado!`));
+  }
+
+  function clearShift() {
+    if (!confirm('Iniciar um novo plantão? Todas as ocorrências atuais serão apagadas (as listas de parcerias e a chave da IA continuam salvas).')) return;
+    occurrences = [];
+    saveAndRender();
+    showToast('Plantão zerado!');
+  }
+
+  function exportAll() {
+    if (occurrences.length === 0) return alert('Nenhuma ocorrência para copiar.');
+    const text = occurrences.map(o => `${o.time}\n${o.text}`).join('\n\n');
+    copyText(text, 'Resumo completo');
+  }
+
+  function renderList() {
+    const listEl = document.getElementById('occList');
+    document.getElementById('occCount').textContent = occurrences.length;
+    const done = occurrences.filter(o => o.done).length;
+    document.getElementById('doneCount').textContent = `${done} de ${occurrences.length} lançadas`;
+
+    if (occurrences.length === 0) {
+      listEl.innerHTML = `<div class="empty-state">Nenhuma ocorrência registrada ainda.<br>Use a voz com IA, os botões rápidos ou o formulário ao lado.</div>`;
+      return;
+    }
+
+    listEl.innerHTML = occurrences.map(o => `
+      <div class="occ-card ${o.done ? 'done' : ''}">
+        <div class="occ-header">
+          <div>
+            <span class="occ-time">${o.time}</span>
+            <span class="char-count">${o.text.length} car.</span>
+          </div>
+          <label class="check-label">
+            <input type="checkbox" ${o.done ? 'checked' : ''} onchange="toggleDone(${o.id})" />
+            Lançado
+          </label>
+        </div>
+        <div class="occ-text">${escapeHtml(o.text)}</div>
+        <div class="occ-actions">
+          <button class="btn-copy-time" onclick="copyText('${o.time}', 'Horário')">Copiar Hora</button>
+          <button class="btn-copy" onclick="copyText(${JSON.stringify(o.text).replace(/"/g, '&quot;')}, 'Descrição')">Copiar Descrição</button>
+          <button class="btn-outline" style="font-size:0.78rem; padding:6px 9px;" onclick="editOcc(${o.id})">Editar</button>
+          <button class="btn-danger" style="font-size:0.78rem; padding:6px 9px;" onclick="deleteOcc(${o.id})">Excluir</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function escapeHtml(str) {
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  window.toggleVoice = toggleVoice;
+  window.saveApiKey = saveApiKey;
+  window.processWithAI = processWithAI;
+  window.confirmAIPreview = confirmAIPreview;
+  window.cancelAIPreview = cancelAIPreview;
+  window.switchTab = switchTab;
+  window.saveParcerias = saveParcerias;
+  window.addQuick = addQuick;
+  window.addWork = addWork;
+  window.renderDynamicFields = renderDynamicFields;
+  window.fillAdvPreset = fillAdvPreset;
+  window.addStructuredOccurrence = addStructuredOccurrence;
+  window.toggleDone = toggleDone;
+  window.deleteOcc = deleteOcc;
+  window.editOcc = editOcc;
+  window.copyText = copyText;
+  window.clearShift = clearShift;
+  window.exportAll = exportAll;
+  window.setNowTime = setNowTime;
+
+  renderDynamicFields();
+  renderList();
+</script>
+</body>
+</html>
