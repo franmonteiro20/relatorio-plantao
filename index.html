@@ -11,6 +11,8 @@
       --primary: #1e3a8a;
       --primary-hover: #1e40af;
       --accent: #0f766e;
+      --ai: #6d28d9;
+      --ai-hover: #5b21b6;
       --danger: #b91c1c;
       --text: #0f172a;
       --muted: #64748b;
@@ -113,6 +115,9 @@
 
     .btn-primary { background: var(--primary); color: #fff; }
     .btn-primary:hover { background: var(--primary-hover); }
+    .btn-ai { background: var(--ai); color: #fff; }
+    .btn-ai:hover { background: var(--ai-hover); }
+    .btn-recording { background: #dc2626 !important; color: #fff; animation: pulse 1.2s infinite; }
     .btn-quick { background: #e0e7ff; color: #1e3a8a; text-align: left; font-size: 0.8rem; padding: 8px 9px; }
     .btn-quick:hover { background: #c7d2fe; }
     .btn-work { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; text-align: left; font-size: 0.78rem; padding: 7px 9px; }
@@ -125,6 +130,35 @@
     .btn-copy:hover { background: #115e59; }
     .btn-copy-time { background: #334155; color: #fff; font-size: 0.78rem; padding: 6px 10px; }
     .btn-copy-time:hover { background: #1e293b; }
+
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.65; }
+      100% { opacity: 1; }
+    }
+
+    .voice-box {
+      background: #f5f3ff;
+      border: 1px solid #ddd6fe;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 14px;
+    }
+    .voice-box h3 { margin-top: 0; color: var(--ai); }
+    .voice-controls { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+    .ai-preview {
+      margin-top: 10px;
+      background: #fff;
+      border: 1px solid #c4b5fd;
+      border-radius: 6px;
+      padding: 10px;
+    }
+    .ai-preview-item {
+      border-bottom: 1px solid #e2e8f0;
+      padding: 6px 0;
+      font-size: 0.85rem;
+    }
+    .ai-preview-item:last-child { border-bottom: none; }
 
     .form-group { margin-bottom: 10px; }
     label { display: block; font-size: 0.8rem; font-weight: 600; margin-bottom: 4px; color: #334155; }
@@ -263,7 +297,7 @@
       Assistente de Relatório de Plantão
       <span id="syncBadge" class="sync-badge">⏳ Conectando...</span>
     </h1>
-    <small>Equipe D - Escala 24x72 • Sincronização em tempo real (Celular e PC)</small>
+    <small>Equipe D - Escala 24x72 • Sincronização em tempo real + Voz com IA</small>
   </div>
   <div class="header-actions">
     <button class="btn-outline" style="color:#fff; border-color:#94a3b8;" onclick="exportAll()">Copiar Resumo</button>
@@ -282,20 +316,40 @@
     <div class="tabs">
       <button class="tab-btn active" id="tabBtnForm" onclick="switchTab('form')">Ocorrências</button>
       <button class="tab-btn" id="tabBtnWork" onclick="switchTab('work')">Parcerias / Trabalho</button>
-      <button class="tab-btn" id="tabBtnParc" onclick="switchTab('parc')">Editar Listas</button>
+      <button class="tab-btn" id="tabBtnParc" onclick="switchTab('parc')">Editar Listas / IA</button>
     </div>
 
-    <!-- BARRA DE HORÁRIO GLOBAL -->
-    <div class="time-bar" id="globalTimeBar">
-      <div style="flex:1;">
-        <label for="occTime" style="margin-bottom:3px;">Horário do Registro (usado nos botões abaixo)</label>
-        <input type="time" id="occTime" value="07:00" />
-      </div>
-      <button class="btn-outline" onclick="setNowTime()" title="Puxar hora atual">🕒 Agora</button>
-    </div>
-
-    <!-- ABA 1: ROTINA RÁPIDA + FORMULÁRIO ESTRUTURADO -->
+    <!-- ABA 1: VOZ + ROTINA RÁPIDA + FORMULÁRIO ESTRUTURADO -->
     <div id="tabForm">
+      <!-- BLOCO DE VOZ COM IA -->
+      <div class="voice-box">
+        <h3>🎙️ Lançamento por Voz (IA)</h3>
+        <div class="voice-controls">
+          <button id="btnMic" class="btn-ai" onclick="toggleVoice()">🎙️ Falar Ocorrência</button>
+          <button id="btnProcessAI" class="btn-primary" onclick="processWithAI()">✨ Formatar com IA</button>
+        </div>
+        <textarea id="voiceTranscript" rows="2" placeholder="Toque em 'Falar Ocorrência' ou digite livremente (ex: às 10 e 15 o advogado Jader atendeu o Adilson, e às 11 e 30 chegou o almoço)..."></textarea>
+        <div id="aiStatus" style="font-size:0.78rem; color:var(--ai); margin-top:4px;"></div>
+
+        <div id="aiPreviewBox" class="ai-preview hidden">
+          <div style="font-size:0.8rem; font-weight:700; color:var(--ai); margin-bottom:6px;">Prévia gerada pela IA:</div>
+          <div id="aiPreviewList"></div>
+          <div style="display:flex; gap:8px; margin-top:8px;">
+            <button class="btn-copy" style="flex:1;" onclick="confirmAIPreview()">✅ Confirmar e Salvar</button>
+            <button class="btn-outline" onclick="cancelAIPreview()">Descartar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- BARRA DE HORÁRIO GLOBAL -->
+      <div class="time-bar" id="globalTimeBar">
+        <div style="flex:1;">
+          <label for="occTime" style="margin-bottom:3px;">Horário do Registro (botões abaixo)</label>
+          <input type="time" id="occTime" value="07:00" />
+        </div>
+        <button class="btn-outline" onclick="setNowTime()" title="Puxar hora atual">🕒 Agora</button>
+      </div>
+
       <h3>Rotina Rápida (1 Clique)</h3>
       <div class="quick-grid">
         <button class="btn-quick" onclick="addQuick('cafe')">☕ Café da Manhã</button>
@@ -344,6 +398,14 @@
 
     <!-- ABA 2: PARCERIAS E FRENTES DE TRABALHO -->
     <div id="tabWork" class="hidden">
+      <div class="time-bar">
+        <div style="flex:1;">
+          <label for="workTime" style="margin-bottom:3px;">Horário das Parcerias</label>
+          <input type="time" id="workTime" value="07:10" />
+        </div>
+        <button class="btn-outline" onclick="setNowTime('workTime')">🕒 Agora</button>
+      </div>
+
       <h3>Prefeitura</h3>
       <div class="quick-grid">
         <button class="btn-work" onclick="addWork('pref_saida')">🚪 Saída Manhã</button>
@@ -381,8 +443,18 @@
       </div>
     </div>
 
-    <!-- ABA 3: CONFIGURAÇÃO DAS LISTAS -->
+    <!-- ABA 3: CONFIGURAÇÃO DAS LISTAS E CHAVE IA -->
     <div id="tabParc" class="hidden">
+      <div class="voice-box">
+        <h3>🔑 Configuração da IA (Gemini)</h3>
+        <div class="form-group" style="margin-bottom:8px;">
+          <label for="geminiApiKey">Chave da API do Gemini (fica salva só neste aparelho)</label>
+          <input type="password" id="geminiApiKey" placeholder="Cole sua chave AIza..." />
+        </div>
+        <button class="btn-ai" style="width:100%;" onclick="saveApiKey()">Salvar Chave da IA</button>
+      </div>
+
+      <h3>Listas de Parcerias e Equipes</h3>
       <p style="font-size:0.82rem; color:var(--muted); margin-top:0;">
         Atualize os nomes aqui sempre que as equipes mudarem. Fica salvo na nuvem para celular e PC.
       </p>
@@ -445,6 +517,7 @@
 
   const STORAGE_KEY_OCC = 'prbur_equipeD_occurrences_v2';
   const STORAGE_KEY_PARC = 'prbur_equipeD_parcerias_v2';
+  const STORAGE_KEY_GEMINI = 'prbur_gemini_api_key';
 
   const DEFAULT_PARCERIAS = {
     prefeitura: 'ADAILTON SOARES, ADAO VITOR, ALEXANDRE ALVES, GABRIEL QUEIROZ, OTINIEL PEREIRA, RENAM DE SOUZA, RONEI BARBOSA, UVANDERSON GOMES, VANILDO CORREA',
@@ -457,6 +530,7 @@
 
   let occurrences = JSON.parse(localStorage.getItem(STORAGE_KEY_OCC) || '[]');
   let parcerias = Object.assign({}, DEFAULT_PARCERIAS, JSON.parse(localStorage.getItem(STORAGE_KEY_PARC) || '{}'));
+  let pendingAIItems = [];
 
   let db = null;
   let dbRef = null;
@@ -497,6 +571,168 @@
     }
   }
 
+  // ==================== VOZ + IA (GEMINI) ====================
+  let recognition = null;
+  let isRecording = false;
+
+  function toggleVoice() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert('Seu navegador não suporta reconhecimento de voz. Use o Google Chrome ou digite no campo de texto.');
+      return;
+    }
+
+    const btn = document.getElementById('btnMic');
+    const status = document.getElementById('aiStatus');
+
+    if (isRecording && recognition) {
+      recognition.stop();
+      return;
+    }
+
+    recognition = new SpeechRecognition();
+    recognition.lang = 'pt-BR';
+    recognition.continuous = true;
+    recognition.interimResults = true;
+
+    const textarea = document.getElementById('voiceTranscript');
+    const baseText = textarea.value ? textarea.value + ' ' : '';
+
+    recognition.onstart = () => {
+      isRecording = true;
+      btn.classList.add('btn-recording');
+      btn.textContent = '⏹️ Parar Gravação';
+      status.textContent = 'Ouvindo... fale naturalmente e toque em Parar quando terminar.';
+    };
+
+    recognition.onresult = (event) => {
+      let transcript = '';
+      for (let i = 0; i < event.results.length; i++) {
+        transcript += event.results[i][0].transcript;
+      }
+      textarea.value = (baseText + transcript).trim();
+    };
+
+    recognition.onerror = (e) => {
+      status.textContent = 'Erro no microfone: ' + e.error;
+    };
+
+    recognition.onend = () => {
+      isRecording = false;
+      btn.classList.remove('btn-recording');
+      btn.textContent = '🎙️ Falar Ocorrência';
+      status.textContent = 'Gravação concluída. Clique em "Formatar com IA".';
+    };
+
+    recognition.start();
+  }
+
+  function saveApiKey() {
+    const key = document.getElementById('geminiApiKey').value.trim();
+    localStorage.setItem(STORAGE_KEY_GEMINI, key);
+    showToast('Chave da IA salva neste aparelho!');
+  }
+
+  async function processWithAI() {
+    const apiKey = localStorage.getItem(STORAGE_KEY_GEMINI) || '';
+    if (!apiKey) {
+      alert('Cole sua chave da API do Gemini na aba "Editar Listas / IA" primeiro.');
+      switchTab('parc');
+      return;
+    }
+
+    const rawText = document.getElementById('voiceTranscript').value.trim();
+    if (!rawText) {
+      alert('Fale ou digite alguma ocorrência primeiro.');
+      return;
+    }
+
+    const status = document.getElementById('aiStatus');
+    const btn = document.getElementById('btnProcessAI');
+    btn.disabled = true;
+    status.textContent = '⏳ Formatando com a IA...';
+
+    const now = new Date();
+    const currentHHMM = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+    const systemPrompt = `Você é um assistente de relatório de plantão prisional (Presídio de Buritis - Equipe D).
+Converta o relato falado do policial em uma lista JSON de ocorrências formais prontas para o sistema.
+
+REGRAS:
+1. Retorne APENAS um array JSON válido no formato: [{"time": "HH:MM", "text": "texto formatado"}]. Sem crases, sem markdown, sem explicações.
+2. Se o relato mencionar mais de uma ocorrência, separe em itens distintos no array.
+3. Se o relato não mencionar horário, use "${currentHHMM}".
+4. Nomes de IPLs sempre em CAIXA ALTA seguidos de (Inf: XXXXXX) quando o número for informado.
+5. Termine cada frase com ", às HH:MM." (usando o mesmo horário do campo time).
+6. Use os cadastros conhecidos quando mencionados:
+   - Advogados: JADER SOARES CHAVES JUNIOR (OAB/MG 214403), ANA PAULA (OAB/MG 172807), HIGOR LUCIANO PRADO FONSECA (OAB/DF 85423), WEMESON GONÇALVES VIEIRA (OAB/DF 64970), MONIQUE TOBARDA PIEGAS (OAB 182034).
+   - Saúde: A enfermeira Gécica, A psicóloga Ivonezia Alves Calazancio e Silva (CRP04/55713), A médica Larissa Gonçalves do Prado (CRM/MG 108546).
+   - Oficiais de Justiça: A oficial de justiça Leticia Sousa Batista (3429308 DF), O oficial de justiça Emerson Moreira Camargos (6895095 MG).
+   - Parcerias atuais:
+     * Prefeitura: ${parcerias.prefeitura}
+     * IEF: ${parcerias.ief}
+     * Garagem: ${parcerias.garagem}
+     * Obra: ${parcerias.obra}
+     * Horta: ${parcerias.horta}
+     * Faxina: ${parcerias.faxina}`;
+
+    try {
+      const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: `${systemPrompt}\n\nRELATO DO POLICIAL:\n${rawText}` }] }],
+          generationConfig: { responseMimeType: "application/json" }
+        })
+      });
+
+      const data = await resp.json();
+      if (!resp.ok) {
+        throw new Error(data.error?.message || 'Erro na API do Gemini');
+      }
+
+      const content = data.candidates?.[0]?.content?.parts?.[0]?.text || '[]';
+      const parsed = JSON.parse(content);
+
+      if (!Array.isArray(parsed) || parsed.length === 0) {
+        throw new Error('A IA não identificou nenhuma ocorrência.');
+      }
+
+      pendingAIItems = parsed;
+      const previewList = document.getElementById('aiPreviewList');
+      previewList.innerHTML = pendingAIItems.map(item => `
+        <div class="ai-preview-item">
+          <strong>${escapeHtml(item.time || currentHHMM)}</strong> — ${escapeHtml(item.text || '')}
+        </div>
+      `).join('');
+
+      document.getElementById('aiPreviewBox').classList.remove('hidden');
+      status.textContent = `${pendingAIItems.length} ocorrência(s) pronta(s). Confira abaixo e clique em Confirmar.`;
+    } catch (err) {
+      console.error(err);
+      status.textContent = '❌ Erro: ' + err.message;
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  function confirmAIPreview() {
+    pendingAIItems.forEach(item => {
+      pushOccurrence(item.time || '07:00', item.text || '');
+    });
+    pendingAIItems = [];
+    document.getElementById('voiceTranscript').value = '';
+    document.getElementById('aiPreviewBox').classList.add('hidden');
+    document.getElementById('aiStatus').textContent = '';
+  }
+
+  function cancelAIPreview() {
+    pendingAIItems = [];
+    document.getElementById('aiPreviewBox').classList.add('hidden');
+    document.getElementById('aiStatus').textContent = 'Prévia descartada. Você pode ajustar o texto acima e tentar novamente.';
+  }
+
+  // ==================== FUNÇÕES GERAIS ====================
   function showToast(msg) {
     const t = document.getElementById('toast');
     t.textContent = msg;
@@ -504,18 +740,17 @@
     setTimeout(() => t.classList.remove('show'), 2200);
   }
 
-  function setNowTime() {
+  function setNowTime(targetId = 'occTime') {
     const now = new Date();
     const hh = String(now.getHours()).padStart(2, '0');
     const mm = String(now.getMinutes()).padStart(2, '0');
-    document.getElementById('occTime').value = `${hh}:${mm}`;
+    document.getElementById(targetId).value = `${hh}:${mm}`;
   }
 
   function switchTab(tab) {
     document.getElementById('tabForm').classList.toggle('hidden', tab !== 'form');
     document.getElementById('tabWork').classList.toggle('hidden', tab !== 'work');
     document.getElementById('tabParc').classList.toggle('hidden', tab !== 'parc');
-    document.getElementById('globalTimeBar').classList.toggle('hidden', tab === 'parc');
 
     document.getElementById('tabBtnForm').classList.toggle('active', tab === 'form');
     document.getElementById('tabBtnWork').classList.toggle('active', tab === 'work');
@@ -525,6 +760,7 @@
   }
 
   function loadParceriasInputs() {
+    document.getElementById('geminiApiKey').value = localStorage.getItem(STORAGE_KEY_GEMINI) || '';
     document.getElementById('parcPref').value = parcerias.prefeitura || '';
     document.getElementById('parcIef').value = parcerias.ief || '';
     document.getElementById('parcGaragem').value = parcerias.garagem || '';
@@ -627,7 +863,7 @@
   }
 
   function addWork(action) {
-    const time = document.getElementById('occTime').value || '07:10';
+    const time = document.getElementById('workTime').value || '07:10';
     let text = '';
 
     if (action === 'pref_saida') {
@@ -1022,7 +1258,7 @@
   }
 
   function clearShift() {
-    if (!confirm('Iniciar um novo plantão? Todas as ocorrências atuais serão apagadas (as listas de parcerias continuam salvas).')) return;
+    if (!confirm('Iniciar um novo plantão? Todas as ocorrências atuais serão apagadas (as listas de parcerias e a chave da IA continuam salvas).')) return;
     occurrences = [];
     saveAndRender();
     showToast('Plantão zerado!');
@@ -1041,7 +1277,7 @@
     document.getElementById('doneCount').textContent = `${done} de ${occurrences.length} lançadas`;
 
     if (occurrences.length === 0) {
-      listEl.innerHTML = `<div class="empty-state">Nenhuma ocorrência registrada ainda.<br>Use os botões de rotina rápida, a aba Parcerias ou o formulário ao lado.</div>`;
+      listEl.innerHTML = `<div class="empty-state">Nenhuma ocorrência registrada ainda.<br>Use a voz com IA, os botões rápidos ou o formulário ao lado.</div>`;
       return;
     }
 
@@ -1072,6 +1308,11 @@
     return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
 
+  window.toggleVoice = toggleVoice;
+  window.saveApiKey = saveApiKey;
+  window.processWithAI = processWithAI;
+  window.confirmAIPreview = confirmAIPreview;
+  window.cancelAIPreview = cancelAIPreview;
   window.switchTab = switchTab;
   window.saveParcerias = saveParcerias;
   window.addQuick = addQuick;
