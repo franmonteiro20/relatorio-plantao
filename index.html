@@ -49,7 +49,7 @@
       vertical-align: middle;
     }
 
-    .header-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .header-actions { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
 
     .toggle-bar {
       background: #e2e8f0;
@@ -117,6 +117,10 @@
     .btn-primary:hover { background: var(--primary-hover); }
     .btn-ai { background: var(--ai); color: #fff; }
     .btn-ai:hover { background: var(--ai-hover); }
+    .btn-wa { background: #16a34a; color: #fff; }
+    .btn-wa:hover { background: #15803d; }
+    .btn-mail { background: #0284c7; color: #fff; }
+    .btn-mail:hover { background: #0369a1; }
     .btn-recording { background: #dc2626 !important; color: #fff; animation: pulse 1.2s infinite; }
     .btn-quick { background: #e0e7ff; color: #1e3a8a; text-align: left; font-size: 0.8rem; padding: 8px 9px; }
     .btn-quick:hover { background: #c7d2fe; }
@@ -300,7 +304,9 @@
     <small>Equipe D - Escala 24x72 • Sincronização em tempo real + Voz com IA</small>
   </div>
   <div class="header-actions">
-    <button class="btn-outline" style="color:#fff; border-color:#94a3b8;" onclick="exportAll()">Copiar Resumo</button>
+    <button class="btn-wa" onclick="sendWhatsApp()">📱 WhatsApp</button>
+    <button class="btn-mail" onclick="sendEmail()">✉️ E-mail</button>
+    <button class="btn-outline" style="color:#fff; border-color:#94a3b8;" onclick="exportAll()">📋 Copiar Resumo</button>
     <button class="btn-danger" onclick="clearShift()">Novo Plantão</button>
   </div>
 </header>
@@ -773,6 +779,29 @@ CADASTROS CONHECIDOS (complete automaticamente OAB/CRM/CRP quando citados):
     pendingAIItems = [];
     document.getElementById('aiPreviewBox').classList.add('hidden');
     document.getElementById('aiStatus').textContent = 'Prévia descartada. Você pode ajustar o texto acima e tentar novamente.';
+  }
+
+  // ==================== EXPORTAÇÃO (WHATSAPP / EMAIL / COPIAR) ====================
+  function buildReportText() {
+    return occurrences.map(o => `${o.time}\n${o.text}`).join('\n\n');
+  }
+
+  function exportAll() {
+    if (occurrences.length === 0) return alert('Nenhuma ocorrência para copiar.');
+    copyText(buildReportText(), 'Resumo completo');
+  }
+
+  function sendWhatsApp() {
+    if (occurrences.length === 0) return alert('Nenhuma ocorrência para enviar.');
+    const text = `*RELATÓRIO DE PLANTÃO - EQUIPE D*\n\n${buildReportText()}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+  }
+
+  function sendEmail() {
+    if (occurrences.length === 0) return alert('Nenhuma ocorrência para enviar.');
+    const subject = 'Relatório de Plantão - Equipe D';
+    const body = buildReportText();
+    window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   }
 
   // ==================== FUNÇÕES GERAIS ====================
@@ -1307,12 +1336,6 @@ CADASTROS CONHECIDOS (complete automaticamente OAB/CRM/CRP quando citados):
     showToast('Plantão zerado!');
   }
 
-  function exportAll() {
-    if (occurrences.length === 0) return alert('Nenhuma ocorrência para copiar.');
-    const text = occurrences.map(o => `${o.time}\n${o.text}`).join('\n\n');
-    copyText(text, 'Resumo completo');
-  }
-
   function renderList() {
     const listEl = document.getElementById('occList');
     document.getElementById('occCount').textContent = occurrences.length;
@@ -1356,6 +1379,9 @@ CADASTROS CONHECIDOS (complete automaticamente OAB/CRM/CRP quando citados):
   window.processWithAI = processWithAI;
   window.confirmAIPreview = confirmAIPreview;
   window.cancelAIPreview = cancelAIPreview;
+  window.sendWhatsApp = sendWhatsApp;
+  window.sendEmail = sendEmail;
+  window.exportAll = exportAll;
   window.switchTab = switchTab;
   window.saveParcerias = saveParcerias;
   window.addQuick = addQuick;
@@ -1368,7 +1394,6 @@ CADASTROS CONHECIDOS (complete automaticamente OAB/CRM/CRP quando citados):
   window.editOcc = editOcc;
   window.copyText = copyText;
   window.clearShift = clearShift;
-  window.exportAll = exportAll;
   window.setNowTime = setNowTime;
 
   renderDynamicFields();
